@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Orienco Prospect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f8f6f1;--surface:#fff;--border:#e5e0d8;
+  --accent:#c8400a;--accent2:#e8a020;--dark:#1a1612;
+  --text:#2d2620;--muted:#8a7f74;--green:#2a7a48;
+  --green-bg:#eaf4ee;--blue:#1a4acc;--blue-bg:#eef2ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:var(--dark);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff}
+.logo b{color:var(--accent2)}
+.pill{font-size:11px;font-weight:600;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 10px;border-radius:20px;display:none}
+.pill.on{display:block;color:var(--accent2)}
+
+/* SEARCH PANEL */
+.sp{background:var(--surface);border-bottom:2px solid var(--border);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.city-row{position:relative}
+.city-row span{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+input.city{width:100%;padding:10px 12px 10px 36px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);outline:none}
+input.city:focus{border-color:var(--accent);background:#fff}
+input.city::placeholder{color:var(--muted)}
+
+/* TYPE GRID */
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;user-select:none;-webkit-user-select:none}
+.tb .ti{font-size:19px}
+.tb .tl{font-size:9px;font-weight:600;color:var(--muted);text-align:center;line-height:1.2}
+.tb.on{background:var(--dark);border-color:var(--dark)}
+.tb.on .tl{color:rgba(255,255,255,.8)}
+
+/* SEARCH ROW */
+.sr{display:flex;gap:8px;align-items:center}
+select.rad{flex:1;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);outline:none}
+button.go{background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;white-space:nowrap}
+button.go:active{background:#a83308}
+
+/* RESULTS */
+.ra{flex:1;padding:12px 14px 100px}
+.sb{display:none;padding:56px 20px;text-align:center}
+.sb.on{display:block}
+.se{font-size:44px;margin-bottom:12px}
+.sb h3{font-family:'Syne',sans-serif;font-size:17px;margin-bottom:6px}
+.sb p{font-size:13px;color:var(--muted);line-height:1.6}
+.spb{display:none;padding:56px 20px;text-align:center}
+.spb.on{display:block}
+.sp2{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sl{font-size:13px;color:var(--muted)}
+.rh{display:none;align-items:center;justify-content:space-between;margin-bottom:12px}
+.rh.on{display:flex}
+.rt{font-family:'Syne',sans-serif;font-size:15px;font-weight:800}
+.rt span{color:var(--accent)}
+.rs{font-size:11px;color:var(--muted)}
+
+/* CARDS */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.card.visited{border-left:4px solid var(--green)}
+.ctop{padding:12px 13px 10px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.cico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.cmain{flex:1;min-width:0}
+.cname{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;line-height:1.25;margin-bottom:3px}
+.cbadges{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:3px}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;text-transform:uppercase}
+.caddr{font-size:11px;color:var(--muted);line-height:1.4}
+.carr{font-size:19px;color:var(--muted);flex-shrink:0;transition:transform .2s;margin-top:1px}
+.card.open .carr{transform:rotate(90deg)}
+
+/* BODY */
+.cbody{display:none;padding:11px 13px 13px;border-top:1px solid var(--border)}
+.card.open .cbody{display:block}
+.ld{padding:10px 0;color:var(--muted);font-size:12px;display:flex;align-items:center;gap:7px}
+.ms{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+
+/* LEGAL GRID */
+.lg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:9px 0}
+.li{background:var(--bg);border-radius:8px;padding:8px 9px}
+.li.full{grid-column:1/-1}
+.ll{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:2px}
+.lv{font-size:12px;font-weight:600;color:var(--text);line-height:1.25}
+.lv.red{color:var(--accent);font-family:'Syne',sans-serif;font-size:13px}
+.ls{font-size:9px;color:var(--muted);margin-top:1px}
+.siren{font-size:10px;color:#bbb;margin-top:5px;margin-bottom:3px}
+.nf{font-size:12px;color:var(--muted);padding:6px 0;font-style:italic}
+.nf a{color:var(--accent);font-weight:600;font-style:normal}
+
+/* ACTION BUTTONS */
+.acts{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.ab{display:inline-flex;align-items:center;gap:4px;padding:8px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;text-decoration:none;white-space:nowrap}
+.ab:active{opacity:.7}
+.ab.tel{background:var(--green-bg);border-color:#b8dfc6;color:var(--green);width:100%;justify-content:center;font-size:13px;margin-bottom:2px}
+.ab.gtel{background:var(--blue-bg);border-color:#c0d0f0;color:var(--blue);width:100%;justify-content:center;margin-bottom:2px}
+.ab.maps{background:var(--blue-bg);border-color:#c0d0f0;color:var(--blue)}
+.ab.von{background:var(--green-bg);border-color:#b8dfc6;color:var(--green)}
+
+/* NOTE */
+.na{display:none;margin-top:9px}
+.na.open{display:block}
+.na textarea{width:100%;padding:9px 11px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;outline:none;min-height:60px;line-height:1.5}
+.na textarea:focus{border-color:var(--accent)}
+.nb{display:flex;gap:6px;margin-top:5px;justify-content:flex-end}
+.ns{padding:6px 13px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
+.nc{padding:6px 11px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
+.np{font-size:11px;color:var(--muted);background:var(--bg);border-left:2px solid var(--accent2);padding:5px 9px;border-radius:0 6px 6px 0;margin-top:7px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* BOTTOM NAV */
+.bn{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;height:56px;z-index:10}
+.nt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer}
+.nt .ni{font-size:19px}
+.nt.on{color:var(--accent)}
+
+/* TOAST */
+.toast{position:fixed;bottom:66px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--dark);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .25s;z-index:9999;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ORIENCO <b>PROSPECT</b></div>
+  <div class="pill" id="pill"></div>
+</header>
+
+<div class="sp">
+  <div class="city-row">
+    <span>🏙️</span>
+    <input type="text" class="city" id="cityInput" placeholder="Ville ou région… (ex: Marseille, Lyon)" autocomplete="off" onkeydown="if(event.key==='Enter')go()">
+  </div>
+  <div class="tg">
+    <div class="tb on" data-t="restaurant" onclick="tt(this)"><span class="ti">🍽️</span><span class="tl">Restaurants</span></div>
+    <div class="tb on" data-t="epicerie"   onclick="tt(this)"><span class="ti">🛒</span><span class="tl">Épiceries</span></div>
+    <div class="tb on" data-t="traiteur"   onclick="tt(this)"><span class="ti">👨‍🍳</span><span class="tl">Traiteurs</span></div>
+    <div class="tb on" data-t="oriental"   onclick="tt(this)"><span class="ti">🌿</span><span class="tl">Oriental</span></div>
+    <div class="tb"    data-t="boulangerie"onclick="tt(this)"><span class="ti">🥐</span><span class="tl">Boulangeries</span></div>
+    <div class="tb"    data-t="bio"        onclick="tt(this)"><span class="ti">🌱</span><span class="tl">Bio</span></div>
+    <div class="tb"    data-t="hotel"      onclick="tt(this)"><span class="ti">🏨</span><span class="tl">Hôtels</span></div>
+    <div class="tb"    data-t="grossiste"  onclick="tt(this)"><span class="ti">🏭</span><span class="tl">Grossistes</span></div>
+  </div>
+  <div class="sr">
+    <select class="rad" id="rad">
+      <option value="2000">Rayon 2 km</option>
+      <option value="5000" selected>Rayon 5 km</option>
+      <option value="10000">Rayon 10 km</option>
+      <option value="20000">Rayon 20 km</option>
+      <option value="50000">Rayon 50 km</option>
+    </select>
+    <button class="go" onclick="go()">🔍 Rechercher</button>
+  </div>
+</div>
+
+<div class="ra">
+  <div class="sb on" id="sw"><div class="se">🗺️</div><h3>Prêt à prospecter</h3><p>Tapez une ville,<br>choisissez vos cibles et lancez.</p></div>
+  <div class="spb" id="spb"><div class="sp2"></div><div class="sl" id="sl">Recherche…</div></div>
+  <div class="sb" id="se"><div class="se">🔍</div><h3>Aucun résultat</h3><p>Élargissez le rayon ou changez de ville.</p></div>
+  <div class="rh" id="rh"><div class="rt"><span id="cn">0</span> prospects</div><div class="rs" id="rs"></div></div>
+  <div id="cl"></div>
+</div>
+
+<div class="bn">
+  <div class="nt on" id="t1" onclick="tab('search')"><span class="ni">🔍</span>Recherche</div>
+  <div class="nt"    id="t2" onclick="tab('visited')"><span class="ni">✅</span>Visités</div>
+  <div class="nt"    id="t3" onclick="tab('notes')"><span class="ni">📝</span>Notes</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────
+var PK = 'b620a21cbe9c45c2769e7b70e5bf8a32991c616d4262b585';
+
+var T = {
+  restaurant: {i:'🍽️',c:'#c8400a',b:'#fdf0eb',l:'Restaurant',
+    osm:[['amenity','restaurant'],['amenity','fast_food']]},
+  epicerie:   {i:'🛒',c:'#2d7a4a',b:'#eaf4ee',l:'Épicerie',
+    osm:[['shop','convenience'],['shop','supermarket'],['shop','grocery']]},
+  traiteur:   {i:'👨‍🍳',c:'#b03090',b:'#f9ecf7',l:'Traiteur',
+    osm:[['shop','deli'],['amenity','restaurant']]},
+  oriental:   {i:'🌿',c:'#2d7a4a',b:'#eaf4ee',l:'Oriental',
+    osm:[['shop','halal'],['shop','ethnic_food']]},
+  boulangerie:{i:'🥐',c:'#c07010',b:'#fdf5e6',l:'Boulangerie',
+    osm:[['shop','bakery']]},
+  bio:        {i:'🌱',c:'#4a9a30',b:'#eef8e8',l:'Bio',
+    osm:[['shop','organic'],['shop','health_food']]},
+  hotel:      {i:'🏨',c:'#2050aa',b:'#edf2fc',l:'Hôtel',
+    osm:[['tourism','hotel'],['tourism','hostel']]},
+  grossiste:  {i:'🏭',c:'#555',b:'#f2f2f2',l:'Grossiste',
+    osm:[['shop','wholesale']]}
+};
+
+// ─── STATE ────────────────────────────────────────────
+var all = [], V = JSON.parse(localStorage.getItem('of_v')||'{}'),
+    N = JSON.parse(localStorage.getItem('of_n')||'{}'),
+    EC = {}, lat = null, lng = null, city = '';
+
+// ─── UI HELPERS ───────────────────────────────────────
+function st(s){
+  document.getElementById('sw').classList.toggle('on', s==='w');
+  document.getElementById('spb').classList.toggle('on', s==='l');
+  document.getElementById('se').classList.toggle('on', s==='e');
+  document.getElementById('cl').style.display = s==='r' ? 'block' : 'none';
+  document.getElementById('rh').classList.toggle('on', s==='r');
+}
+function toast(m){
+  var t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('on');
+  clearTimeout(t._); t._=setTimeout(function(){t.classList.remove('on');},2500);
+}
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function fca(v){
+  if(v>=1000000) return (v/1000000).toFixed(1)+' M€';
+  if(v>=1000) return Math.round(v/1000)+' k€';
+  return v+' €';
+}
+
+// ─── TYPE TOGGLE ──────────────────────────────────────
+function tt(el){ el.classList.toggle('on'); }
+function getTypes(){
+  var r=[];
+  document.querySelectorAll('.tb.on').forEach(function(b){r.push(b.dataset.t);});
+  return r;
+}
+
+// ─── SEARCH ───────────────────────────────────────────
+function go(){
+  var inp = document.getElementById('cityInput').value.trim();
+  if(!inp){ toast('⚠️ Entrez une ville'); return; }
+  var types = getTypes();
+  if(!types.length){ toast('⚠️ Sélectionnez au moins un type'); return; }
+
+  st('l'); document.getElementById('sl').textContent = 'Localisation de '+inp+'…';
+
+  fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(inp)+'&format=json&limit=1&countrycodes=fr&accept-language=fr')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||!d.length){ toast('❌ Ville introuvable'); st('w'); return; }
+      lat=parseFloat(d[0].lat); lng=parseFloat(d[0].lon); city=inp;
+      search(types);
+    }).catch(function(){ toast('❌ Erreur réseau'); st('w'); });
+}
+
+function search(types){
+  var r=parseInt(document.getElementById('rad').value);
+  document.getElementById('sl').textContent='Recherche autour de '+city+'…';
+
+  var q='';
+  types.forEach(function(t){
+    T[t].osm.forEach(function(p){
+      q+='node["'+p[0]+'"="'+p[1]+'"](around:'+r+','+lat+','+lng+');';
+      q+='way["'+p[0]+'"="'+p[1]+'"](around:'+r+','+lat+','+lng+');';
+    });
+  });
+
+  fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent('[out:json][timeout:25],('+q+');out center 200;')})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var seen={};
+      all=[];
+      d.elements.forEach(function(el){
+        var la=el.lat||(el.center&&el.center.lat);
+        var lo=el.lon||(el.center&&el.center.lon);
+        if(!la||!lo) return;
+        var nm=(el.tags&&(el.tags.name||el.tags['name:fr']))||'Établissement sans nom';
+        var k=nm+parseFloat(la).toFixed(4);
+        if(seen[k]) return;
+        seen[k]=true;
+        var tp=gtype(el.tags||{},types);
+        var ad=[
+          el.tags&&el.tags['addr:housenumber'],
+          el.tags&&el.tags['addr:street'],
+          el.tags&&el.tags['addr:postcode'],
+          el.tags&&el.tags['addr:city']
+        ].filter(Boolean).join(' ');
+        var cp=el.tags&&el.tags['addr:postcode']||'';
+        var ph=(el.tags&&(el.tags.phone||el.tags['contact:phone']))||'';
+        all.push({id:String(el.id),name:nm,type:tp,lat:la,lng:lo,address:ad,postcode:cp,phone:ph});
+      });
+      EC={};
+      renderAll(all);
+      st(all.length?'r':'e');
+    }).catch(function(){ toast('❌ Erreur — réessayez'); st('w'); });
+}
+
+function gtype(tags,types){
+  for(var i=0;i<types.length;i++){
+    var o=T[types[i]].osm;
+    for(var j=0;j<o.length;j++) if(tags[o[j][0]]===o[j][1]) return types[i];
+  }
+  return types[0];
+}
+
+// ─── RENDER CARDS ─────────────────────────────────────
+function renderAll(list){
+  document.getElementById('cn').textContent=list.length;
+  document.getElementById('rs').textContent=city?'autour de '+city:'';
+  var p=document.getElementById('pill');
+  p.textContent=list.length+' résultats'; p.classList.add('on');
+
+  var h='';
+  list.forEach(function(p){
+    var cfg=T[p.type], iv=!!V[p.id], hn=!!N[p.id];
+    h+='<div class="card'+(iv?' visited':'')+'" id="c-'+p.id+'">';
+    h+='<div class="ctop" onclick="tog(\''+p.id+'\')">';
+    h+='<div class="cico" style="background:'+cfg.b+'">'+cfg.i+'</div>';
+    h+='<div class="cmain">';
+    h+='<div class="cname">'+esc(p.name)+'</div>';
+    h+='<div class="cbadges"><span class="badge" style="background:'+cfg.b+';color:'+cfg.c+'">'+cfg.l+'</span>';
+    if(iv) h+='<span class="badge" style="background:#eaf4ee;color:#2a7a48">✅ Visité</span>';
+    if(hn) h+='<span class="badge" style="background:#fdf5e6;color:#c07010">📝 Note</span>';
+    h+='</div>';
+    if(p.address) h+='<div class="caddr">📍 '+esc(p.address)+'</div>';
+    h+='</div><span class="carr">›</span></div>';
+    h+='<div class="cbody" id="b-'+p.id+'"><div class="ld"><div class="ms"></div>Chargement…</div></div>';
+    h+='</div>';
+  });
+  document.getElementById('cl').innerHTML=h;
+}
+
+// ─── TOGGLE CARD ──────────────────────────────────────
+function tog(id){
+  var card=document.getElementById('c-'+id);
+  var was=card.classList.contains('open');
+  document.querySelectorAll('.card.open').forEach(function(c){c.classList.remove('open');});
+  if(!was){
+    card.classList.add('open');
+    if(!EC[id]) enrich(id);
+    else { var p=gp(id); if(p) rb(id,EC[id].nf?null:EC[id],p); }
+  }
+}
+
+function gp(id){
+  for(var i=0;i<all.length;i++) if(all[i].id===id) return all[i];
+  return null;
+}
+
+// ─── ENRICHMENT ───────────────────────────────────────
+function enrich(id){
+  var p=gp(id);
+  if(!p) return;
+  var bd=document.getElementById('b-'+id);
+  if(!bd) return;
+  bd.innerHTML='<div class="ld"><div class="ms"></div>Recherche infos société…</div>';
+
+  // Strategy 1: search by postcode + name (most reliable)
+  // Strategy 2: search by name + city
+  var s1 = p.postcode
+    ? 'https://api.pappers.fr/v2/recherche?api_token='+PK+'&q='+encodeURIComponent(p.name)+'&code_postal='+p.postcode+'&par_page=3'
+    : null;
+  var s2 = 'https://api.pappers.fr/v2/recherche?api_token='+PK+'&q='+encodeURIComponent(p.name+(city?' '+city:''))+'&par_page=3';
+
+  var attempt = s1 ? fetch(s1).then(function(r){return r.json();}) : Promise.resolve({resultats:[]});
+
+  attempt.then(function(d){
+    var res=(d&&d.resultats&&d.resultats.length) ? d.resultats : null;
+    if(res) return res;
+    // fallback: search by name + city
+    return fetch(s2).then(function(r){return r.json();}).then(function(d2){
+      return (d2&&d2.resultats&&d2.resultats.length) ? d2.resultats : null;
+    });
+  })
+  .then(function(res){
+    if(!res){ EC[id]={nf:true}; rb(id,null,p); return; }
+    // pick best match
+    var match=bestMatch(p.name,res);
+    return fetch('https://api.pappers.fr/v2/entreprise?api_token='+PK+'&siren='+match.siren)
+      .then(function(r){return r.json();})
+      .then(function(det){
+        var dir=det.dirigeants&&det.dirigeants[0];
+        var fin=det.finances&&det.finances[0];
+        var sg=det.siege;
+        var info={
+          siren:match.siren,
+          dirigeant:dir?((dir.prenom||'')+' '+(dir.nom||'')).trim():'',
+          fonction:dir?(dir.fonction||''):'',
+          ca:fin&&fin.chiffre_affaires?fca(fin.chiffre_affaires):'',
+          annee:fin?(fin.annee||''):'',
+          adresse:sg?[sg.adresse,sg.code_postal,sg.ville].filter(Boolean).join(' '):'',
+          activite:det.libelle_code_naf||'',
+          creation:det.date_creation?det.date_creation.substring(0,4):'',
+          forme:det.forme_juridique||'',
+          phone:(det.etablissement_siege&&det.etablissement_siege.telephone)||p.phone||''
+        };
+        EC[id]=info;
+        rb(id,info,p);
+      });
+  })
+  .catch(function(){ EC[id]={nf:true}; rb(id,null,p); });
+}
+
+function bestMatch(name,res){
+  var nl=name.toLowerCase().replace(/[^a-z0-9]/g,' ').trim();
+  var best=res[0],bs=0;
+  res.forEach(function(r){
+    var dl=((r.denomination||r.nom_complet||'')).toLowerCase().replace(/[^a-z0-9]/g,' ').trim();
+    var sa=nl.split(' ').filter(function(w){return w.length>2;});
+    var sb=new Set(dl.split(' ').filter(function(w){return w.length>2;}));
+    var common=0;
+    sa.forEach(function(w){if(sb.has(w))common++;});
+    var sc=common/Math.max(sa.length,sb.size,1);
+    if(sc>bs){bs=sc;best=r;}
+  });
+  return best;
+}
+
+// ─── RENDER BODY ──────────────────────────────────────
+function rb(id,info,p){
+  var bd=document.getElementById('b-'+id);
+  if(!bd) return;
+  var iv=!!V[id], note=N[id]||'';
+  var ma='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((info&&info.adresse?info.adresse:p.name+' '+city));
+  var gt='https://www.google.com/search?q='+encodeURIComponent('téléphone '+p.name+' '+city);
+  var sc='https://www.societe.com/cgi-bin/search?champs='+encodeURIComponent(p.name+' '+city);
+  var ph=(info&&info.phone)||p.phone||'';
+  var h='';
+
+  if(info&&!info.nf){
+    h+='<div class="lg">';
+    if(info.dirigeant) h+='<div class="li"><div class="ll">👤 Dirigeant</div><div class="lv">'+esc(info.dirigeant)+'</div>'+(info.fonction?'<div class="ls">'+esc(info.fonction)+'</div>':'')+'</div>';
+    if(info.ca) h+='<div class="li"><div class="ll">💰 Chiffre d\'affaires</div><div class="lv red">'+esc(info.ca)+'</div>'+(info.annee?'<div class="ls">'+esc(info.annee)+'</div>':'')+'</div>';
+    if(info.activite) h+='<div class="li full"><div class="ll">🏢 Activité</div><div class="lv">'+esc(info.activite)+'</div></div>';
+    if(info.adresse) h+='<div class="li full"><div class="ll">📍 Adresse siège</div><div class="lv">'+esc(info.adresse)+'</div></div>';
+    if(info.creation) h+='<div class="li"><div class="ll">📅 Création</div><div class="lv">'+esc(info.creation)+'</div></div>';
+    if(info.forme) h+='<div class="li"><div class="ll">⚖️ Forme</div><div class="lv" style="font-size:11px">'+esc(info.forme)+'</div></div>';
+    h+='</div>';
+    if(info.siren) h+='<div class="siren">SIREN : '+info.siren+'</div>';
+  } else {
+    h+='<div class="nf">ℹ️ Non trouvé dans le registre — <a href="'+sc+'" target="_blank" onclick="event.stopPropagation()">Chercher sur Societe.com →</a></div>';
+  }
+
+  if(ph) h+='<a class="ab tel" href="tel:'+esc(ph)+'" onclick="event.stopPropagation()">📞 '+esc(ph)+'</a>';
+  else   h+='<a class="ab gtel" href="'+gt+'" target="_blank" onclick="event.stopPropagation()">🔍 Chercher le téléphone sur Google</a>';
+
+  h+='<div class="acts">';
+  h+='<a class="ab maps" href="'+ma+'" target="_blank" onclick="event.stopPropagation()">🗺️ Maps</a>';
+  h+='<button class="ab '+(iv?'von':'')+'" onclick="tv(\''+id+'\',event)">'+(iv?'✅ Visité':'☑️ Marquer')+'</button>';
+  h+='<button class="ab" onclick="tn(\''+id+'\',event)">📝 Note</button>';
+  h+='</div>';
+
+  if(note) h+='<div class="np">📝 '+esc(note)+'</div>';
+  h+='<div class="na'+(note?' open':'')+'" id="na-'+id+'">';
+  h+='<textarea id="ta-'+id+'" placeholder="Contact, intérêt, suite à donner…">'+esc(note)+'</textarea>';
+  h+='<div class="nb"><button class="nc" onclick="cn(\''+id+'\')">Annuler</button><button class="ns" onclick="sn(\''+id+'\')">💾 Sauvegarder</button></div>';
+  h+='</div>';
+
+  bd.innerHTML=h;
+}
+
+// ─── INTERACTIONS ─────────────────────────────────────
+function tv(id,e){
+  e.stopPropagation();
+  if(V[id]){delete V[id];toast('Marquage retiré');}
+  else{V[id]=Date.now();toast('✅ Marqué visité !');}
+  localStorage.setItem('of_v',JSON.stringify(V));
+  var c=document.getElementById('c-'+id);
+  if(c) c.classList.toggle('visited',!!V[id]);
+  var p=gp(id); if(p&&EC[id]) rb(id,EC[id].nf?null:EC[id],p);
+}
+
+function tn(id,e){
+  e.stopPropagation();
+  var a=document.getElementById('na-'+id); if(!a) return;
+  var was=a.classList.contains('open');
+  document.querySelectorAll('.na.open').forEach(function(x){x.classList.remove('open');});
+  if(!was){
+    a.classList.add('open');
+    var ta=document.getElementById('ta-'+id);
+    if(ta) setTimeout(function(){ta.focus();},50);
+  }
+}
+
+function sn(id){
+  var ta=document.getElementById('ta-'+id);
+  var txt=ta?ta.value.trim():'';
+  if(txt) N[id]=txt; else delete N[id];
+  localStorage.setItem('of_n',JSON.stringify(N));
+  var a=document.getElementById('na-'+id); if(a) a.classList.remove('open');
+  toast('📝 Note sauvegardée');
+  var p=gp(id); if(p&&EC[id]) rb(id,EC[id].nf?null:EC[id],p);
+}
+
+function cn(id){
+  var a=document.getElementById('na-'+id); if(a) a.classList.remove('open');
+  var ta=document.getElementById('ta-'+id); if(ta) ta.value=N[id]||'';
+}
+
+// ─── TABS ─────────────────────────────────────────────
+function tab(t){
+  document.getElementById('t1').classList.toggle('on',t==='search');
+  document.getElementById('t2').classList.toggle('on',t==='visited');
+  document.getElementById('t3').classList.toggle('on',t==='notes');
+  if(t==='visited'){
+    var l=all.filter(function(p){return V[p.id];});
+    if(!l.length){toast('Aucun prospect visité');return;}
+    renderAll(l);st('r');
+  } else if(t==='notes'){
+    var l2=all.filter(function(p){return N[p.id];});
+    if(!l2.length){toast('Aucune note enregistrée');return;}
+    renderAll(l2);st('r');
+  } else {
+    if(all.length){renderAll(all);st('r');}else st('w');
+  }
+}
+</script>
+</body>
+</html>
