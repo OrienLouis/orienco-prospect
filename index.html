@@ -261,7 +261,7 @@ function search(types){
     });
   });
 
-  fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent('[out:json][timeout:25],('+q+');out center 200;')})
+  fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent('[out:json][timeout:25];('+q+');out center 200;')})
     .then(function(r){return r.json();})
     .then(function(d){
       var seen={};
